@@ -2,16 +2,25 @@ import { useRef, useState } from "react";
 
 const CHIPS = [
   { label: "Create image",  prompt: "Create an image of ",    icon: "🖼️" },
-  { label: "Create music",  prompt: "Create a piece of music that ", icon: "🎵" },
-  { label: "Create Video", prompt: "Help me write ",          icon: "" },
-  { label: "Write anything",     prompt: "Summarize this: ",        icon: "" },
-  { label: "Boost my day",       prompt: "Analyze and explain ",    icon: "" },
-  { label: "Help me learn",    prompt: "Write code to ",          icon: "" },
+  { label: "Create music",  prompt: "Create a piece of music that ", icon: "🎸" },
+  { label: "Help me learn", prompt: "Help me write ",          icon: "" },
+  { label: "Boost my day",     prompt: "Summarize this: ",        icon: "" },
+  { label: "Write anything",       prompt: "Analyze and explain ",    icon: "" },
+  { label: "Create video",    prompt: "Write code to ",          icon: "" },
+];
+
+const MODELS = [
+  { id: "flash",    label: "Fast",         desc: "Answers quickly" },
+  { id: "thinking", label: "Thinking", desc: "Solves complex problems" },
+  { id: "pro",      label: "Pro",            desc: "Advanced math and code with 3.1 Pro" },
 ];
 
 export default function GeminiInput({ onSend }) {
   const [value, setValue] = useState("");
+  const [selectedModel, setSelectedModel] = useState(MODELS[0]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const textareaRef = useRef(null);
+  const hasText = value.trim().length > 0;
 
   const autoResize = () => {
     const el = textareaRef.current;
@@ -34,7 +43,7 @@ export default function GeminiInput({ onSend }) {
 
   const handleSend = () => {
     if (!value.trim()) return;
-    onSend?.(value.trim());
+    onSend?.(value.trim(), selectedModel.id);
     setValue("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
@@ -44,8 +53,6 @@ export default function GeminiInput({ onSend }) {
     textareaRef.current?.focus();
     autoResize();
   };
-
-  const hasText = value.trim().length > 0;
 
   return (
     <div className="gemini-container">
@@ -69,15 +76,45 @@ export default function GeminiInput({ onSend }) {
                 add
               </span>
             </button>
-            <button className="icon-btn" title="Tools">Tools</button>
+            <button className="icon-btn" title="Tools">
+              <span class="material-symbols-outlined">page_info</span>Tools
+            </button>
           </div>
-          <div>Fast <span className="material-symbols-outlined">stat_minus_1</span></div>
-          <button
-            className={`send-btn ${hasText ? "active" : ""}`}
-            onClick={handleSend}
-            disabled={!hasText}
-          ><span className="material-symbols-outlined">send</span>
-          </button>
+
+          {/* right side — dropdown + send button together */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="dropdown-wrapper">
+              <button className="model-btn" onClick={() => setDropdownOpen((o) => !o)}>
+                <span>{selectedModel.label}</span>
+                <span>
+                  <span class="material-symbols-outlined">stat_minus_1</span>
+                </span>
+              </button>
+
+              {dropdownOpen && (
+                <div className="dropdown">
+                  {MODELS.map((m) => (
+                    <div
+                      key={m.id}
+                      className={`model-option ${selectedModel.id === m.id ? "selected" : ""}`}
+                      onClick={() => { setSelectedModel(m); setDropdownOpen(false); }}
+                    >
+                      <div>
+                        <div className="model-name">{m.label}</div>
+                        <div className="model-desc">{m.desc}</div>
+                      </div>
+                      {selectedModel.id === m.id && <span className="checkmark">✓</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button className={`action-btn ${hasText ? "active" : ""}`} onClick={handleSend}>
+              {hasText ? <span className="material-symbols-outlined">send</span> : 
+                  <span class="material-symbols-outlined">mic</span>}
+            </button>
+          </div>
         </div>
       </div>
 
