@@ -49,7 +49,10 @@ export default function GeminiInput({ onSend }) {
 
   return (
     <div className="gemini-container">
+      <p>Hi Human</p>
+      <p>Where should we start?</p>
       <div className="gemini-wrapper">
+        
         <textarea
           ref={textareaRef}
           value={value}
@@ -61,14 +64,20 @@ export default function GeminiInput({ onSend }) {
         />
         <div className="gemini-toolbar">
           <div className="gemini-actions">
-            <button className="icon-btn" title="Attach">+</button>
+            <button className="icon-btn" title="Attach">
+              <span className="material-symbols-outlined">
+                add
+              </span>
+            </button>
             <button className="icon-btn" title="Tools">Tools</button>
           </div>
+          <div>Fast <span className="material-symbols-outlined">stat_minus_1</span></div>
           <button
             className={`send-btn ${hasText ? "active" : ""}`}
             onClick={handleSend}
             disabled={!hasText}
-          >↑</button>
+          ><span className="material-symbols-outlined">send</span>
+          </button>
         </div>
       </div>
 
