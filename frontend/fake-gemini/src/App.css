@@ -15,6 +15,8 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  height: 100vh;
+  overflow: hidden;
 }
 
 main {
@@ -24,6 +26,8 @@ main {
   align-items: center;      
   justify-content: center;  
   padding: 2rem;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .App-logo {
@@ -338,5 +342,85 @@ main {
   font-size: 18px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+}
+
+.chat-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.chat-messages {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chat-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5f6368;
+}
+
+/* user bubble */
+.message-row.user {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-message {
+  background: #2d2d2d;
+  color: #e8eaed;
+  padding: 12px 18px;
+  border-radius: 20px 20px 4px 20px;
+  max-width: 80%;
+  font-size: 15px;
+}
+
+/* gemini response */
+.message-row.gemini {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.gemini-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.gemini-message {
+  color: #e8eaed;
+  font-size: 15px;
+  line-height: 1.75;
+  max-width: 90%;
+}
+
+.gemini-message p {
+  margin: 0 0 1rem;
+}
+
+.gemini-message p:last-child {
+  margin-bottom: 0;
+}
+
+/* input pinned to bottom */
+.input-bar {
+  padding: 1rem 2rem 1.5rem;
+  display: flex;
+  justify-content: center;
 }
 

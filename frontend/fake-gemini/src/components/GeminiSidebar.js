@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 // poti apasa pe ele si sa citesti articolul
 // cum ii atragi pe useri sa vorbeasca cu ai ul?
 //TODO fa un scraper pentru paginile astea (ca sa ia informatia din articole, dont hardcode them, keep them in a text file)
-const geminiChats=["Sam Altman's coworkers say he can barely code and misunderstands basic machine learning concepts",
-  "It looks like the US used Claude AI to strike the girls' school in southern Iran, killing 168",
-  "Therapy should be hard. That's why AI can't replace it"
-];
+// const geminiChats=["Sam Altman's coworkers say he can barely code and misunderstands basic machine learning concepts",
+//   "It looks like the US used Claude AI to strike the girls' school in southern Iran, killing 168",
+//   "Therapy should be hard. That's why AI can't replace it"
+// ];
 
-export default function Sidebar({ onNewChat, onSelectChat }) {
+export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewChat }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -68,12 +68,23 @@ export default function Sidebar({ onNewChat, onSelectChat }) {
           <>
             <div className="sidebar-section-label">Chats</div>
             <div className="sidebar-chats">
+              {articles.map((article) => (
+                <div
+                  key={article.id}
+                  className={`chat-item ${activeId === article.id ? "active" : ""}`}
+                  onClick={() => onSelectChat(article.id)}
+                >
+                  <span>{article.title}</span>
+                </div>
+              ))}
+            </div>
+            {/* <div className="sidebar-chats">
               {geminiChats.map((chat) => (
                 <div key={chat} className="chat-item" onClick={() => onSelectChat?.(chat)}>
                   <span>{chat}</span>
                 </div>
               ))}
-            </div>
+            </div> */}
           </>
         )}
 
