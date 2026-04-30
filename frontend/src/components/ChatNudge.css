@@ -1,0 +1,58 @@
+.nudge {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #2d2d2d;
+  border: 1px solid #3c3c3c;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 220px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: nudge-in 0.3s ease;
+  z-index: 50;
+}
+
+.nudge-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #5f6368;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.nudge-close:hover { color: #e8eaed; }
+
+.nudge-text {
+  margin: 0;
+  color: #e8eaed;
+  font-size: 14px;
+  padding-right: 16px;
+}
+
+.nudge-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #8ab4f8;
+  color: #1e1e1e;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nudge-btn:hover { background: #a8c7fa; }
+
+@keyframes nudge-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

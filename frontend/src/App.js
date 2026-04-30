@@ -4,6 +4,7 @@ import GeminiChatView from './components/GeminiChatView';
 import GeminiInput from './components/GeminiInput';
 import GeminiSidebar from './components/GeminiSidebar';
 import articles from "./content/articles.json";
+import ChatNudge from "./components/ChatNudge";
 
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
           activeId={activeArticle?.id}
           onNewChat={handleNewChat}
         />
-        <main>
+        <main className={`main ${!activeArticle ? "main-home" : ""}`}>
           <GeminiChatView article={activeArticle} />
           {!activeArticle && (
             <div className="input-bar">
@@ -37,6 +38,7 @@ function App() {
             </div>
           )}
         </main>
+        {activeArticle && <ChatNudge onNewChat={handleNewChat} />}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import './GeminiInput.css';
 
 const CHIPS = [
   { label: "Create image",  prompt: "Create an image of ",    icon: "🖼️" },
@@ -77,7 +78,7 @@ export default function GeminiInput({ onSend }) {
               </span>
             </button>
             <button className="icon-btn" title="Tools">
-              <span class="material-symbols-outlined">page_info</span>Tools
+              <span className="material-symbols-outlined">page_info</span>Tools
             </button>
           </div>
 
@@ -87,7 +88,7 @@ export default function GeminiInput({ onSend }) {
               <button className="model-btn" onClick={() => setDropdownOpen((o) => !o)}>
                 <span>{selectedModel.label}</span>
                 <span>
-                  <span class="material-symbols-outlined">stat_minus_1</span>
+                  <span className="material-symbols-outlined">stat_minus_1</span>
                 </span>
               </button>
 
@@ -112,7 +113,7 @@ export default function GeminiInput({ onSend }) {
 
             <button className={`action-btn ${hasText ? "active" : ""}`} onClick={handleSend}>
               {hasText ? <span className="material-symbols-outlined">send</span> : 
-                  <span class="material-symbols-outlined">mic</span>}
+                  <span className="material-symbols-outlined">mic</span>}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import './GeminiSidebar.css';
 
 // ar fi cute daca titlurile astea ar fi glithchy, sau incep sa apara cand AI ul o ia razna
 // poti apasa pe ele si sa citesti articolul
@@ -44,14 +45,14 @@ export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewC
             <span className="material-symbols-outlined">menu</span>
           </button>
           {!collapsed && <button className="icon-btn">
-            <span class="material-symbols-outlined">search</span>
+            <span className="material-symbols-outlined">search</span>
           </button>}
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-item active">
+          <div className="nav-item active" onClick={onNewChat}>
             <span className="material-symbols-outlined">edit_square</span> 
-            {!collapsed && <span onClick={onNewChat}>New Chat</span>}
+            {!collapsed && <span>New Chat</span>}
           </div>
           {!collapsed &&(
           <>

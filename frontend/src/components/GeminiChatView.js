@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import './GeminiChatView.css';
 
 export default function GeminiChatView({ article }) {
   const bottomRef = useRef(null);

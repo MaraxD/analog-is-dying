@@ -1,0 +1,101 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  transition: width 0.25s ease, transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+  width: 56px;
+}
+
+.sidebar.mobile {
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  transform: translateX(-260px);
+  z-index: 100;
+}
+
+/* mobile — slid in */
+.sidebar.mobile.mobile-open {
+  transform: translateX(0);
+}
+ 
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+}
+
+.sidebar-logo {
+  font-size: 15px;
+  font-weight: 500;
+  color: #e8eaed;
+}
+
+.sidebar-section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #5f6368;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 14px 12px 6px;
+}
+
+.nav-item, .chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #9aa0a6;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chat-item { font-size: 13px; }
+
+.chat-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item:hover, .chat-item:hover,
+.nav-item.active, .chat-item.active {
+  background: #2d2d2d;
+  color: #e8eaed;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #2d2d2d;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #3c4043;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #e8eaed;
+  flex-shrink: 0;
+}
