@@ -16,7 +16,7 @@ const MODELS = [
   { id: "pro",      label: "Pro",            desc: "Advanced math and code with 3.1 Pro" },
 ];
 
-export default function GeminiInput({ onSend }) {
+export default function GeminiInput({ onSend, showConversation }) {
   const [value, setValue] = useState("");
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -57,8 +57,11 @@ export default function GeminiInput({ onSend }) {
 
   return (
     <div className="gemini-container">
-      <p>Hi Human</p>
-      <p>Where should we start?</p>
+      <div className={`gemini-intro-text ${showConversation ? "gemini-intro-text--hidden" : ""}`}>
+        <p>Hi Human</p>
+        <p>Where should we start?</p>
+      </div>
+      
       <div className="gemini-wrapper">
         
         <textarea
@@ -82,7 +85,7 @@ export default function GeminiInput({ onSend }) {
             </button>
           </div>
 
-          {/* right side — dropdown + send button together */}
+
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div className="dropdown-wrapper">
               <button className="model-btn" onClick={() => setDropdownOpen((o) => !o)}>
@@ -119,7 +122,7 @@ export default function GeminiInput({ onSend }) {
         </div>
       </div>
 
-      <div className="gemini-chips">
+      <div className={`gemini-chips ${showConversation ? "gemini-chips--hidden" : ""}`}>
         {CHIPS.map((chip) => (
           <button
             key={chip.label}
@@ -131,6 +134,9 @@ export default function GeminiInput({ onSend }) {
           </button>
         ))}
       </div>
+
+      
+      <p className={`gemini-warning ${showConversation ? "gemini-warning--visible" : ""}`}>Gemini is AI and can make mistakes, including about people.</p>
     </div>
   );
 }

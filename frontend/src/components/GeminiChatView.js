@@ -18,14 +18,14 @@ export default function GeminiChatView({ article }) {
     <div className="chat-view">
       <div className="chat-messages">
 
-        {/* user message — article title */}
+
         <div className="message-row user">
           <div className="message user-message">
             {article.title}
           </div>
         </div>
 
-        {/* gemini response — article content */}
+
         <div className="message-row gemini">
           <div className="gemini-avatar">G</div>
           <div className="message gemini-message">

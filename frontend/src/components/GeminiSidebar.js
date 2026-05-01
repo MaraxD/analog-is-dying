@@ -4,11 +4,7 @@ import './GeminiSidebar.css';
 // ar fi cute daca titlurile astea ar fi glithchy, sau incep sa apara cand AI ul o ia razna
 // poti apasa pe ele si sa citesti articolul
 // cum ii atragi pe useri sa vorbeasca cu ai ul?
-//TODO fa un scraper pentru paginile astea (ca sa ia informatia din articole, dont hardcode them, keep them in a text file)
-// const geminiChats=["Sam Altman's coworkers say he can barely code and misunderstands basic machine learning concepts",
-//   "It looks like the US used Claude AI to strike the girls' school in southern Iran, killing 168",
-//   "Therapy should be hard. That's why AI can't replace it"
-// ];
+
 
 export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewChat }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -79,13 +75,6 @@ export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewC
                 </div>
               ))}
             </div>
-            {/* <div className="sidebar-chats">
-              {geminiChats.map((chat) => (
-                <div key={chat} className="chat-item" onClick={() => onSelectChat?.(chat)}>
-                  <span>{chat}</span>
-                </div>
-              ))}
-            </div> */}
           </>
         )}
 

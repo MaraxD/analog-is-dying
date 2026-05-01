@@ -22,3 +22,42 @@
   0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
   40% { transform: translateY(-6px); opacity: 1; }
 }
+
+.gemini-textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.6;
+  max-height: 200px;
+  overflow-y: auto;
+  background: transparent;
+  display: block;
+  color: white;
+}
+
+.gemini-wrapper {
+  border: 1.5px solid #303132;
+  border-radius: 24px;
+  padding: 12px 16px 10px;
+  background: #303132;
+  max-width: 680px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.gemini-wrapper:focus-within {
+  border-color: #303132;
+}
+
+.char {
+  display: inline;
+  opacity: 0;
+  animation: fadeChar 0.2s ease forwards;
+}
+
+@keyframes fadeChar {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

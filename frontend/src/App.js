@@ -46,13 +46,16 @@ function App() {
           onNewChat={handleNewChat}
         />
         <main className={`main ${showHome ? "main-home" : ""}`}>
+          <div className="topbar">
+            <span className="topbar-logo" onClick={handleNewChat}>Gemini</span>
+          </div>
+
           {showArticle && <GeminiChatView article={activeArticle} />}
           {showConversation && <ConversationView messages={messages} loading={loading} />}
           
-          {/* <GeminiChatView article={activeArticle} /> */}
           {!showArticle && (
-            <div className="input-bar">
-              <GeminiInput onSend={handleSend}/>
+            <div className={`input-wrap ${showConversation ? "input-wrap--bottom" : ""}`}>
+              <GeminiInput onSend={handleSend} showConversation={showConversation}/>
             </div>
           )}
         </main>

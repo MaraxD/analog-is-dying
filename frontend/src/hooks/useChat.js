@@ -11,6 +11,8 @@ export default function useChat() {
     setMessages(updatedMessages);
     setLoading(true);
 
+    setMessages([...updatedMessages, { role: "assistant", content: "" }]);
+
     try {
 
       const response = await fetch(`http://127.0.0.1:8000/gemini?message=${encodeURIComponent(text)}`, {
@@ -18,8 +20,25 @@ export default function useChat() {
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = await response.json();
-      setMessages([...updatedMessages, { role: "assistant", content: data.response }]);
+      const reader=response.body.getReader();
+      const decoder=new TextDecoder();
+
+      while (true){
+        const {done, value}=await reader.read();
+        if(done) break;
+
+        const chunk=decoder.decode(value);
+
+        setMessages((prev)=>{
+          const updated=[...prev];
+          updated[updated.length-1]={
+            role:"assistant",
+            content: updated[updated.length-1].content+chunk,
+          }
+          return updated;
+        })
+      }
+
     } catch (err) {
       console.error("Error:", err);
     } finally {
