@@ -2,10 +2,12 @@ import { useEffect, useRef } from "react";
 import './GeminiChatView.css';
 
 export default function GeminiChatView({ article }) {
-  const bottomRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
   }, [article]);
 
   if (!article) return (
@@ -15,7 +17,7 @@ export default function GeminiChatView({ article }) {
   );
 
   return (
-    <div className="chat-view">
+    <div className="chat-view" ref={containerRef}>
       <div className="chat-messages">
 
 
@@ -35,7 +37,6 @@ export default function GeminiChatView({ article }) {
           </div>
         </div>
 
-        <div ref={bottomRef} />
       </div>
     </div>
   );

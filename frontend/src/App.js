@@ -20,6 +20,12 @@ function App() {
     setIsNewChat(false);
   };
 
+  const handleHome = () => {
+    setActiveArticle(null);
+    setIsNewChat(false);
+    reset();
+  };
+
   const handleNewChat = () => {
     setActiveArticle(null);
     setIsNewChat(true);
@@ -47,7 +53,7 @@ function App() {
         />
         <main className={`main ${showHome ? "main-home" : ""}`}>
           <div className="topbar">
-            <span className="topbar-logo" onClick={handleNewChat}>Gemini</span>
+            <span className="topbar-logo" onClick={handleHome}>Gemini</span>
           </div>
 
           {showArticle && <GeminiChatView article={activeArticle} />}

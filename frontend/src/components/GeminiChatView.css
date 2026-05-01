@@ -3,6 +3,7 @@
   overflow-y: auto;
   min-height: 0;
   padding: 2rem;
+  padding-bottom: 120px;
 }
 
 .chat-messages {
