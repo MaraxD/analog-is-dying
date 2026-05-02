@@ -37,6 +37,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  padding-top: 10vh; /* Pushes the content slightly down from absolute center */
 }
 
 .material-symbols-outlined {

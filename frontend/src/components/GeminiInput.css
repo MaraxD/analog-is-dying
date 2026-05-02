@@ -1,5 +1,14 @@
-.gemini-intro-text--hidden{
-    display: none;
+.gemini-intro-text {
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+
+.gemini-intro-text p {
+  margin: 0;
+}
+
+.gemini-intro-text--hidden {
+  display: none;
 }
 
 .gemini-wrapper {
@@ -56,6 +65,25 @@
   background: #f0f0f02c;
 }
 
+.tools-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  border-radius: 18px;
+  padding: 0 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+}
+
+.tools-btn:hover {
+  background: #f0f0f02c;
+}
+
 .send-btn {
   width: 36px;
   height: 36px;
@@ -81,6 +109,7 @@
 .gemini-chips {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
   margin-top: 12px;
   padding: 0 4px;
@@ -96,18 +125,17 @@
   gap: 6px;
   padding: 7px 14px;
   border-radius: 999px;
-  border: 1px solid black;
-  background: black;
+  border: none;
+  background: #303132;
   font-size: 13px;
   cursor: pointer;
-  color: gray;
-  transition: background 0.15s, border-color 0.15s;
+  color: #e8eaed;
+  transition: background 0.15s;
   white-space: nowrap;
 }
 
 .chip:hover {
-  background: #303132;
-  border-color: #303132;
+  background: #3c3c3c;
 }
 
 /* model dropdown */
@@ -121,9 +149,9 @@
   gap: 6px;
   padding: 6px 10px;
   border-radius: 20px;
-  border: 1px solid #3c3c3c;
+  border: none;
   background: transparent;
-  color: #9aa0a6;
+  color: white;
   font-size: 13px;
   cursor: pointer;
 }
@@ -171,10 +199,32 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.gemini-warning{
-    visibility: hidden;
+.gemini-warning {
+  visibility: hidden;
+  opacity: 0;
+  text-align: center;
+  color: #c4c7c5;
+  font-size: 14px;
+  margin-top: 0;
+  height: 0;
+  transition: all 0.3s ease;
 }
 
-.gemini-warning--visible{
-    visibility: visible;
+.gemini-warning--visible {
+  visibility: visible;
+  opacity: 1;
+  font-size: 11px;
+  color: #5f6368;
+  margin-top: 10px;
+  height: auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  display: block;
 }

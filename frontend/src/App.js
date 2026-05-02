@@ -28,7 +28,7 @@ function App() {
 
   const handleNewChat = () => {
     setActiveArticle(null);
-    setIsNewChat(true);
+    setIsNewChat(false); // Make sure it goes back to the home state
     reset();
   };
 
@@ -61,7 +61,7 @@ function App() {
           
           {!showArticle && (
             <div className={`input-wrap ${showConversation ? "input-wrap--bottom" : ""}`}>
-              <GeminiInput onSend={handleSend} showConversation={showConversation}/>
+              <GeminiInput onSend={handleSend} showConversation={showConversation} loading={loading}/>
             </div>
           )}
         </main>

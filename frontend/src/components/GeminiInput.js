@@ -16,7 +16,7 @@ const MODELS = [
   { id: "pro",      label: "Pro",            desc: "Advanced math and code with 3.1 Pro" },
 ];
 
-export default function GeminiInput({ onSend, showConversation }) {
+export default function GeminiInput({ onSend, showConversation, loading }) {
   const [value, setValue] = useState("");
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -80,8 +80,9 @@ export default function GeminiInput({ onSend, showConversation }) {
                 add
               </span>
             </button>
-            <button className="icon-btn" title="Tools">
-              <span className="material-symbols-outlined">page_info</span>Tools
+            <button className="tools-btn" title="Tools">
+              <span className="material-symbols-outlined">page_info</span>
+              <span>Tools</span>
             </button>
           </div>
 
@@ -90,9 +91,7 @@ export default function GeminiInput({ onSend, showConversation }) {
             <div className="dropdown-wrapper">
               <button className="model-btn" onClick={() => setDropdownOpen((o) => !o)}>
                 <span>{selectedModel.label}</span>
-                <span>
-                  <span className="material-symbols-outlined">stat_minus_1</span>
-                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: "16px", display: "flex", alignItems: "center" }}>stat_minus_1</span>
               </button>
 
               {dropdownOpen && (
@@ -114,9 +113,14 @@ export default function GeminiInput({ onSend, showConversation }) {
               )}
             </div>
 
-            <button className={`action-btn ${hasText ? "active" : ""}`} onClick={handleSend}>
-              {hasText ? <span className="material-symbols-outlined">send</span> : 
-                  <span className="material-symbols-outlined">mic</span>}
+            <button className={`action-btn ${hasText ? "active" : ""}`} onClick={handleSend} disabled={loading}>
+              {loading ? (
+                <span className="material-symbols-outlined loading-spinner">progress_activity</span>
+              ) : hasText ? (
+                <span className="material-symbols-outlined">send</span>
+              ) : (
+                <span className="material-symbols-outlined">mic</span>
+              )}
             </button>
           </div>
         </div>
