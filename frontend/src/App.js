@@ -12,7 +12,7 @@ import useChat from "./hooks/useChat";
 function App() {
   const [activeArticle, setActiveArticle] = useState(null);
   const [isNewChat, setIsNewChat] = useState(false);
-  const { messages, loading, sendMessage, reset } = useChat();
+  const { messages, loading, sendMessage, reset, stopGeneration } = useChat();
 
   const handleSelectChat = (id) => {
     const article = articles.find((a) => a.id === id);
@@ -61,7 +61,7 @@ function App() {
           
           {!showArticle && (
             <div className={`input-wrap ${showConversation ? "input-wrap--bottom" : ""}`}>
-              <GeminiInput onSend={handleSend} showConversation={showConversation} loading={loading}/>
+              <GeminiInput onSend={handleSend} showConversation={showConversation} loading={loading} onStop={stopGeneration}/>
             </div>
           )}
         </main>

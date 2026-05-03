@@ -20,10 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-system_prompt="You are a large language model, don't use '*' around words or emojis for example."
 
 @app.post("/gemini")
-async def send_prompt(message:str="Explain how AI works in a few words"):
+async def send_prompt(message:str="Explain how AI works in a few words", system_prompt:str="You are a large language model, don't use '*' or '**' around words or emojis for example."):
     client = genai.Client(api_key=api_key)
 
     #todo based on a timer i guess, the system prompts will change, making it more deranged
