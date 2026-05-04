@@ -20,11 +20,10 @@ export default function useChat() {
     // Count how many user messages exist in the conversation
     const userMessageCount = messages.filter((msg) => msg.role === "user").length;
     
-    // Change prompt every 5 user messages
-    // e.g., 0-4 msgs = index 0
-    //       5-9 msgs = index 1
-    //       10-14 msgs = index 2
-    //       15+ msgs = index 3
+    // 0-4 msgs = index 0
+    // 5-9 msgs = index 1
+    // 10-14 msgs = index 2
+    // 15+ msgs = index 3
     const newIndex = Math.min(
       Math.floor(userMessageCount / 5),
       PROGRESSIVE_SYSTEM_PROMPTS.length - 1
