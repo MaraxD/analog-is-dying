@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import './App.css';
 import GeminiChatView from './components/GeminiChatView';
 import GeminiInput from './components/GeminiInput';
@@ -9,15 +9,51 @@ import ConversationView from "./components/ConversationView";
 import useChat from "./hooks/useChat";
 import IntroPage from "./components/IntroPage";
 
-
 function App() {
   const [hasStarted, setHasStarted] = useState(false);
   const [activeArticle, setActiveArticle] = useState(null);
   const [isNewChat, setIsNewChat] = useState(false);
   const { messages, loading, sendMessage, reset, stopGeneration } = useChat();
+  
+  const [isGlitching, setIsGlitching] = useState(false);
+  const [showBadChats, setShowBadChats] = useState(false);
+
+  // Trigger the glitch transition 5 seconds after the app starts
+  useEffect(() => {
+    let timeout;
+    if (hasStarted && !showBadChats) {
+      timeout = setTimeout(() => {
+        setIsGlitching(true);
+        // The glitch lasts for 1.5 seconds, then switches permanently
+        setTimeout(() => {
+          setShowBadChats(true);
+          setIsGlitching(false);
+        }, 1500);
+      }, 5000); // Wait 5 seconds to glitch
+    }
+    return () => clearTimeout(timeout);
+  }, [hasStarted, showBadChats]);
+
+  const currentArticles = showBadChats 
+    ? (articles.bad_chats || []) 
+    : (articles.good_chats || []);
+
+  // Whenever the glitch switches the article list, if an article is currently open, 
+  // switch it to the corresponding article in the new list (matching by ID)
+  useEffect(() => {
+    if (activeArticle) {
+      const updatedArticle = currentArticles.find((a) => a.id === activeArticle.id);
+      if (updatedArticle) {
+        setActiveArticle(updatedArticle);
+      } else {
+        // If there's no matching ID (e.g. lists have different lengths), close it
+        setActiveArticle(null);
+      }
+    }
+  }, [showBadChats, currentArticles]); // Run this whenever the lists swap
 
   const handleSelectChat = (id) => {
-    const article = articles.find((a) => a.id === id);
+    const article = currentArticles.find((a) => a.id === id);
     setActiveArticle(article);
     setIsNewChat(false);
   };
@@ -51,10 +87,11 @@ function App() {
   return (
     <div className="App">
         <GeminiSidebar 
-          articles={articles}
+          articles={currentArticles}
           onSelectChat={handleSelectChat}
           activeId={activeArticle?.id}
           onNewChat={handleNewChat}
+          isGlitching={isGlitching}
         />
         <main className={`main ${showHome ? "main-home" : ""}`}>
           <div className="topbar">

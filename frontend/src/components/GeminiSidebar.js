@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import './GeminiSidebar.css';
+import ScrambleText from "./ScrambleText";
 
 // ar fi cute daca titlurile astea ar fi glithchy, sau incep sa apara cand AI ul o ia razna
 // poti apasa pe ele si sa citesti articolul
 // cum ii atragi pe useri sa vorbeasca cu ai ul?
 
 
-export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewChat }) {
+export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewChat, isGlitching }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -71,7 +72,7 @@ export default function GeminiSidebar({ articles, onSelectChat, activeId, onNewC
                   className={`chat-item ${activeId === article.id ? "active" : ""}`}
                   onClick={() => onSelectChat(article.id)}
                 >
-                  <span>{article.title}</span>
+                  <ScrambleText text={article.title} isGlitching={isGlitching} />
                 </div>
               ))}
             </div>
