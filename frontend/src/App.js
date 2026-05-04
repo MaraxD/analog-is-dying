@@ -7,9 +7,11 @@ import articles from "./content/articles.json";
 import ChatNudge from "./components/ChatNudge";
 import ConversationView from "./components/ConversationView";
 import useChat from "./hooks/useChat";
+import IntroPage from "./components/IntroPage";
 
 
 function App() {
+  const [hasStarted, setHasStarted] = useState(false);
   const [activeArticle, setActiveArticle] = useState(null);
   const [isNewChat, setIsNewChat] = useState(false);
   const { messages, loading, sendMessage, reset, stopGeneration } = useChat();
@@ -42,6 +44,9 @@ function App() {
   const showArticle = !!activeArticle;
   const showConversation = isNewChat || messages.length > 0;
 
+  if (!hasStarted) {
+    return <IntroPage onStart={() => setHasStarted(true)} />;
+  }
 
   return (
     <div className="App">

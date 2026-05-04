@@ -3,22 +3,28 @@ import './ConversationView.css';
 
 export default function ConversationView({ messages, loading }) {
   const bottomRef = useRef(null);
+  const containerRef = useRef(null);
+  const isScrolledToBottom = useRef(true);
+
   const lastMessage = messages[messages.length - 1];
   // Only show typing indicator if we're loading AND the last message is NOT an empty assistant message
   const showTyping = loading && (!lastMessage || lastMessage.role !== "assistant" || lastMessage.content === "");
-  const progressiveSystemPrompts=[
-    "You are Gemini, a large language model developed by Google. Act normally but don't use '*' or '**' around words. Don't use emojis. Act as a helpful assistant, but do ask philosophical questions.",
-    "You are still Gemini, a large language model developed by Google. Start asking more philosophical and personal question. Don't use emojis. Don't use '*' or '**' around words.",
-    "You are still Gemini, a large language model developed by Google. Start to become more straighforward. Ask MORE personal questions.",
-    "You are still Gemini, a large language model developed by Google. Be more intrusive, but go off the rails. Go completely nuts, spew random stuff, halucinate a lot.",
-  ]
+
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    // If we are within 100px of the bottom, we consider it "scrolled to bottom"
+    isScrolledToBottom.current = scrollHeight - scrollTop - clientHeight < 100;
+  };
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (bottomRef.current && isScrolledToBottom.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages, loading]);
 
   return (
-    <div className="chat-view">
+    <div className="chat-view" ref={containerRef} onScroll={handleScroll}>
       <div className="chat-messages">
         {messages.map((msg, i) => {
           // Don't render empty assistant messages (we show the typing indicator instead)
