@@ -20,7 +20,9 @@ export default function IntroPage({ onStart }) {
         <h1 className="intro-title">
           AI is <span className="intro-word">{WORDS[wordIndex]}</span>
         </h1>
-        <p className="intro-prompt">Click anywhere to start the experience</p>
+        <p className="intro-prompt">
+          Click anywhere to start the experience
+        </p>
       </div>
     </div>
   );

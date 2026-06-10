@@ -8,7 +8,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # You should pass your API key here or in a .env file
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     volumes:
       - ./backend:/app

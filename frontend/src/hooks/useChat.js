@@ -17,15 +17,15 @@ export default function useChat() {
 
 
   useEffect(() => {
-    // Count how many user messages exist in the conversation
+    // count how many user messages exist in the conversation
     const userMessageCount = messages.filter((msg) => msg.role === "user").length;
     
-    // 0-4 msgs = index 0
-    // 5-9 msgs = index 1
-    // 10-14 msgs = index 2
-    // 15+ msgs = index 3
+    // 0-1 msgs=idx 0
+    // 2-3 msgs=idx 1
+    // 4-5 msgs=idx 2
+    // 6+ msgs=idx 3
     const newIndex = Math.min(
-      Math.floor(userMessageCount / 5),
+      Math.floor(userMessageCount / 2),
       PROGRESSIVE_SYSTEM_PROMPTS.length - 1
     );
 
@@ -47,7 +47,7 @@ export default function useChat() {
   };
 
   const sendMessage = async (text) => {
-    // If there's an ongoing request, abort it before starting a new one
+    // if there's an ongoing request, abort it before starting a new one
     stopGeneration();
     
     abortControllerRef.current = new AbortController();
@@ -86,19 +86,29 @@ export default function useChat() {
     }, 40); // Slightly slower to match the previous word-by-word feel
 
     try {
-      // Calculate the prompt index *before* making the request, 
-      // using the updated message count that includes the message we just added
+      // calculate the prompt index before making the request, 
+      // using the updated message count that includes the message added
       const userMessageCount = updatedMessages.filter((msg) => msg.role === "user").length;
       const calculatedIndex = Math.min(
-        Math.floor(userMessageCount / 5),
+        Math.floor(userMessageCount / 2),
         PROGRESSIVE_SYSTEM_PROMPTS.length - 1
       );
       const currentSystemPrompt = PROGRESSIVE_SYSTEM_PROMPTS[calculatedIndex];
 
-      const response = await fetch(`http://127.0.0.1:8000/gemini?message=${encodeURIComponent(text)}&system_prompt=${encodeURIComponent(currentSystemPrompt)}`, {
+      const response = await fetch(`http://127.0.0.1:8000/gemini`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: abortControllerRef.current.signal,
+        body: JSON.stringify({
+          message: text,
+          system_prompt: currentSystemPrompt,
+          level: calculatedIndex,
+          // Convert history structure from 'role/content' to what backend expects 'role/text'
+          history: updatedMessages.slice(0, -1).map(msg => ({
+            role: msg.role === "user" ? "user" : "ai",
+            text: msg.content
+          }))
+        })
       });
 
       const reader = response.body.getReader();
