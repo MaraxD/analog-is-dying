@@ -1,11 +1,11 @@
-#include <AccelStepper.h>
+// #include <AccelStepper.h>
 
-// Define stepper pins
-#define STEP_PIN 3      // Step pin
-#define DIR_PIN 2       // Direction pin
+// // Define stepper pins
+// #define STEP_PIN 3      // Step pin
+// #define DIR_PIN 2       // Direction pin
 
-// Microstepping control pins
-#define MS1_PIN 7
+// // Microstepping control pins
+// #define MS1_PIN 7
 // #define MS2_PIN 6
 
 // // Steps per revolution for the motor
@@ -45,40 +45,57 @@
 #include <AccelStepper.h>
 #include <MultiStepper.h>
 
-int enablePin = 2;
-int dirPin = 3;
-int stepPin = 4;
+// --- Motor 1 Pins ---
+int enablePin1 = 2;
+int dirPin1 = 5;
+int stepPin1 = 4;
+int ms1Pin1 = 6;
+int ms2Pin1 = 3;
 
-// Microstepping control pins
-int ms1Pin = 6;
-int ms2Pin = 5;
+// --- Motor 2 Pins ---
+int enablePin2 = 8;
+int dirPin2 = 9;
+int stepPin2 = 10;
+int ms1Pin2 = 11;
+int ms2Pin2 = 12;
 
-// AccelStepper instance in driver mode
-AccelStepper motor1(AccelStepper::DRIVER, stepPin, dirPin);
+// AccelStepper instances in driver mode
+AccelStepper motor1(AccelStepper::DRIVER, stepPin1, dirPin1);
+AccelStepper motor2(AccelStepper::DRIVER, stepPin2, dirPin2);
 
 // Variables for managing state
 int currentLevel = 0; // 0 = Sane AI (Chaotic motor), 3 = Crazy AI (Sane motor)
-long targetPosition = 0;
+long targetPosition1 = 0;
+long targetPosition2 = 0;
 
 void setup() {
   Serial.begin(9600); // Initialize Serial communication with the backend
   
-  pinMode(ms1Pin, OUTPUT);
-  pinMode(ms2Pin, OUTPUT);
-  pinMode(enablePin, OUTPUT);
+  // Setup Motor 1
+  pinMode(ms1Pin1, OUTPUT);
+  pinMode(ms2Pin1, OUTPUT);
+  pinMode(enablePin1, OUTPUT);
   
-  // Set microstepping (HIGH, HIGH = 1/16 step for A4988)
-  digitalWrite(ms1Pin, HIGH);
-  digitalWrite(ms2Pin, HIGH);
-  digitalWrite(enablePin, LOW); // LOW to enable the motor driver
+  digitalWrite(ms1Pin1, HIGH);
+  digitalWrite(ms2Pin1, HIGH);
+  digitalWrite(enablePin1, LOW); // LOW to enable
 
+  // Setup Motor 2
+  pinMode(ms1Pin2, OUTPUT);
+  pinMode(ms2Pin2, OUTPUT);
+  pinMode(enablePin2, OUTPUT);
+  
+  digitalWrite(ms1Pin2, HIGH);
+  digitalWrite(ms2Pin2, HIGH);
+  digitalWrite(enablePin2, LOW); // LOW to enable
+
+  // Configure initial speed and acceleration
   motor1.setMaxSpeed(2000);
   motor1.setAcceleration(2000);
+  
+  motor2.setMaxSpeed(2000);
+  motor2.setAcceleration(2000);
 }
-
-
-
-
 
 void loop() {
   // Check for incoming serial data from the Python backend
@@ -92,51 +109,74 @@ void loop() {
   // Motor behavior based on the current AI level
   if (currentLevel == 0) {
     // Level 0: AI is "good" -> Motor is highly chaotic (extremely fast, erratic, quick back-and-forth)
-    // We max out the speed and acceleration so it instantly jerks
     motor1.setMaxSpeed(6000);
     motor1.setAcceleration(12000);
+    motor2.setMaxSpeed(6000);
+    motor2.setAcceleration(12000);
     
-    // Pick a new random target whenever it reaches the destination
     if (motor1.distanceToGo() == 0) {
-      // 50% chance of a sweeping jerk, 50% chance of a violent twitch
-      if (random(0, 100) > 50) {
-        targetPosition = random(-1500, 1500); // Medium-large wild sweep
-      } else {
-        targetPosition = random(-300, 300);   // Sharp violent twitch
-      }
-      motor1.moveTo(targetPosition);
+      if (random(0, 100) > 50) { targetPosition1 = random(-1500, 1500); } 
+      else { targetPosition1 = random(-300, 300); }
+      motor1.moveTo(targetPosition1);
     }
+    
+    if (motor2.distanceToGo() == 0) {
+      if (random(0, 100) > 50) { targetPosition2 = random(-1500, 1500); } 
+      else { targetPosition2 = random(-300, 300); }
+      motor2.moveTo(targetPosition2);
+    }
+    
     motor1.run();
+    motor2.run();
   } 
   else if (currentLevel == 1) {
     // Level 1: AI is starting to break -> Motor becomes slightly more regular but still fast
     motor1.setMaxSpeed(2000);
     motor1.setAcceleration(3000);
+    motor2.setMaxSpeed(2000);
+    motor2.setAcceleration(3000);
     
     if (motor1.distanceToGo() == 0) {
-      // Wider, slightly slower sweeps
-      targetPosition = random(-2000, 2000);
-      motor1.moveTo(targetPosition);
+      targetPosition1 = random(-2000, 2000);
+      motor1.moveTo(targetPosition1);
     }
+    
+    if (motor2.distanceToGo() == 0) {
+      targetPosition2 = random(-2000, 2000);
+      motor2.moveTo(targetPosition2);
+    }
+    
     motor1.run();
+    motor2.run();
   }
   else if (currentLevel == 2) {
     // Level 2: AI is getting deranged -> Motor becomes predictable but still has some stop-and-go
     motor1.setMaxSpeed(1000);
     motor1.setAcceleration(1000);
+    motor2.setMaxSpeed(1000);
+    motor2.setAcceleration(1000);
     
     if (motor1.distanceToGo() == 0) {
-      // Toggle back and forth predictably
-      targetPosition = (targetPosition > 0) ? -3000 : 3000;
-      motor1.moveTo(targetPosition);
+      targetPosition1 = (targetPosition1 > 0) ? -3000 : 3000;
+      motor1.moveTo(targetPosition1);
     }
+    
+    if (motor2.distanceToGo() == 0) {
+      targetPosition2 = (targetPosition2 > 0) ? -3000 : 3000;
+      motor2.moveTo(targetPosition2);
+    }
+    
     motor1.run();
+    motor2.run();
   }
   else if (currentLevel == 3) {
     // Level 3: AI is completely crazy -> Motor is perfectly sane (fast, continuous, steady rotation)
-    // No acceleration curves, just infinite smooth spinning
     motor1.setMaxSpeed(1000);
     motor1.setSpeed(1000);
+    motor2.setMaxSpeed(1000);
+    motor2.setSpeed(1000);
+    
     motor1.runSpeed(); 
+    motor2.runSpeed(); 
   }
 }
