@@ -8,6 +8,7 @@ import ChatNudge from "./components/ChatNudge";
 import ConversationView from "./components/ConversationView";
 import useChat from "./hooks/useChat";
 import IntroPage from "./components/IntroPage";
+import FallingLetters from "./components/FallingLetters";
 
 function App() {
   const [hasStarted, setHasStarted] = useState(false);
@@ -38,14 +39,14 @@ function App() {
     return () => document.removeEventListener("click", enableAudio);
   }, [isAudioAllowed]);
 
+  // Count user messages to determine craziness level
+  const userMessageCount = messages.filter((msg) => msg.role === "user").length;
+  // Make sure this perfectly matches the math in useChat.js!
+  const crazinessLevel = Math.min(Math.floor(userMessageCount / 2), 3);
+
   // Volume Logic based on Craziness
   useEffect(() => {
     if (!audioRef.current || !isAudioAllowed) return;
-
-    // Count user messages to determine craziness level
-    const userMessageCount = messages.filter((msg) => msg.role === "user").length;
-    // Make sure this perfectly matches the math in useChat.js!
-    const crazinessLevel = Math.min(Math.floor(userMessageCount / 2), 3);
 
     // Maintain full volume initially, only lower it as the craziness actually increases
     if (crazinessLevel === 0) {
@@ -160,6 +161,7 @@ function App() {
               isGlitching={isGlitching}
             />
             <main className={`main ${showHome ? "main-home" : ""}`}>
+              {crazinessLevel >= 3 && <FallingLetters />}
               <div className="topbar">
                 <span className="topbar-logo" onClick={handleHome}>Gemini</span>
               </div>
@@ -173,7 +175,8 @@ function App() {
                 </div>
               )}
             </main>
-            {showArticle && <ChatNudge onNewChat={handleNewChat} />}
+            {/* Only show the nudge if we are viewing an article AND we are not in the final crazy state */}
+            {showArticle && crazinessLevel < 3 && <ChatNudge onNewChat={handleNewChat} />}
         </div>
       )}
     </>

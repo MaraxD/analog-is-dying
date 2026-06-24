@@ -140,7 +140,9 @@ export default function GeminiInput({ onSend, showConversation, loading, onStop 
       </div>
 
       
-      <p className={`gemini-warning ${showConversation ? "gemini-warning--visible" : ""}`}>Gemini is AI and can make mistakes, including about people.</p>
+      <p className={`gemini-warning ${showConversation ? "gemini-warning--visible" : ""}`}>`Gemini is AI and can make mistakes, including about people.</p>
+      <p className={`gemini-warning ${showConversation ? "gemini-warning--visible" : ""}`}>`Conversations are not saved anywhere. They are deleted after exiting the experience.</p>
+
     </div>
   );
 }

@@ -16,6 +16,11 @@ export default function GeminiChatView({ article }) {
     </div>
   );
 
+  // Since you moved images into frontend/public/media (or similar),
+  // we can resolve the path directly from the public folder
+  // If the image is "claude-iran.png" and it's in the public/media folder, the path is "/media/claude-iran.png"
+  const imagePath = article.image_path ? article.image_path.replace("../", "/") : null;
+
   return (
     <div className="chat-view" ref={containerRef}>
       <div className="chat-messages">
@@ -31,6 +36,13 @@ export default function GeminiChatView({ article }) {
         <div className="message-row gemini">
           <div className="gemini-avatar">G</div>
           <div className="message gemini-message">
+            {imagePath && (
+              <img 
+                src={imagePath} 
+                alt={article.title} 
+                style={{ width: "100%", maxWidth: "600px", borderRadius: "12px", marginBottom: "20px", display: "block" }}
+              />
+            )}
             {article.content.split("\n\n").map((para, i) => (
               <p key={i}>{para}</p>
             ))}
