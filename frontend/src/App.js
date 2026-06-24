@@ -22,6 +22,57 @@ function App() {
   const [isAudioAllowed, setIsAudioAllowed] = useState(false);
   const audioRef = useRef(null);
 
+  // Idle Reset Logic (15 seconds)
+  useEffect(() => {
+    // Only run the idle timer if the experience has actually started
+    if (!hasStarted) return;
+
+    let idleTimer;
+    
+    const resetApp = () => {
+      console.log("Idle for 15 seconds. Restarting experience...");
+      setHasStarted(false);
+      setHasInteracted(false);
+      setIsNewChat(false);
+      setActiveArticle(null);
+      setShowBadChats(false);
+      setIsGlitching(false);
+      reset(); // Reset chat history
+      
+      // Stop audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      
+      // Reset motor via backend
+      fetch("http://127.0.0.1:8000/reset-motor", { method: "POST" })
+        .catch(e => console.log("Failed to reset motor:", e));
+    };
+
+    const resetTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(resetApp, 15000); // 15 seconds
+    };
+
+    // Listen for any kind of user interaction
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+    
+    events.forEach(event => {
+      document.addEventListener(event, resetTimer);
+    });
+
+    // Start the timer initially
+    resetTimer();
+
+    return () => {
+      clearTimeout(idleTimer);
+      events.forEach(event => {
+        document.removeEventListener(event, resetTimer);
+      });
+    };
+  }, [hasStarted, reset]);
+
   // We need a document-level click listener to bypass browser autoplay policies
   // Any click anywhere on the page will unlock the audio context
   useEffect(() => {
