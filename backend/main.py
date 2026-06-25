@@ -26,11 +26,21 @@ app.add_middleware(
 # Initialize serial connection
 arduino_serial = None
 try:
-    # Attempt to find the Arduino port automatically
+    # Attempt to find the Arduino port automatically across OS
     ports = list(serial.tools.list_ports.comports())
     arduino_port = None
     for p in ports:
+        # Match Mac/Linux (usbmodem, ttyACM, ttyUSB) and Windows (Arduino, CH340, CP210x, or standard COM ports)
         if "usbmodem" in p.device or "ttyACM" in p.device or "ttyUSB" in p.device:
+            arduino_port = p.device
+            break
+        # Windows typically lists the manufacturer description.
+        # "Arduino", "CH340" (common clone chip), or "CP210x" are standard.
+        if p.description and ("Arduino" in p.description or "CH340" in p.description or "CP210" in p.description):
+            arduino_port = p.device
+            break
+        # Fallback for Windows if it just says "USB Serial Device (COM3)"
+        if "COM" in p.device and "USB" in p.description:
             arduino_port = p.device
             break
     
