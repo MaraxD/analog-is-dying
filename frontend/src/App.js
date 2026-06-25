@@ -22,7 +22,7 @@ function App() {
   const [isAudioAllowed, setIsAudioAllowed] = useState(false);
   const audioRef = useRef(null);
 
-  // Idle Reset Logic (15 seconds)
+  // Idle Reset Logic (45 seconds)
   useEffect(() => {
     // Only run the idle timer if the experience has actually started
     if (!hasStarted) return;
@@ -30,7 +30,7 @@ function App() {
     let idleTimer;
     
     const resetApp = () => {
-      console.log("Idle for 15 seconds. Restarting experience...");
+      console.log("Idle for 45 seconds. Restarting experience...");
       setHasStarted(false);
       setHasInteracted(false);
       setIsNewChat(false);
@@ -52,7 +52,7 @@ function App() {
 
     const resetTimer = () => {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(resetApp, 15000); // 15 seconds
+      idleTimer = setTimeout(resetApp, 45000); // 45 seconds
     };
 
     // Listen for any kind of user interaction
