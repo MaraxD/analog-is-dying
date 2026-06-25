@@ -45,56 +45,105 @@
 #include <AccelStepper.h>
 #include <MultiStepper.h>
 
-// --- Motor 1 Pins ---
-int enablePin1 = 2;
-int dirPin1 = 5;
-int stepPin1 = 4;
-int ms1Pin1 = 6;
-int ms2Pin1 = 3;
+// --- RAMPS 1.4 Motor 1 (X-Axis) - "Writing Hand" ---
+const int enablePin1 = 38;
+const int dirPin1 = 55;
+const int stepPin1 = 54;
 
-// --- Motor 2 Pins ---
-int enablePin2 = 8;
-int dirPin2 = 9;
-int stepPin2 = 10;
-int ms1Pin2 = 11;
-int ms2Pin2 = 12;
+// --- RAMPS 1.4 Motor 2 (Y-Axis) - "Tapping Hand" ---
+const int enablePin2 = 56;
+const int dirPin2 = 61;
+const int stepPin2 = 60;
+
+// --- RAMPS 1.4 Motor 3 (Z-Axis) ---
+const int enablePin3 = 62;
+const int dirPin3 = 48;
+const int stepPin3 = 46;
+
+// --- RAMPS 1.4 Motor 4 (E0-Axis) ---
+const int enablePin4 = 24;
+const int dirPin4 = 28;
+const int stepPin4 = 26;
 
 // AccelStepper instances in driver mode
 AccelStepper motor1(AccelStepper::DRIVER, stepPin1, dirPin1);
 AccelStepper motor2(AccelStepper::DRIVER, stepPin2, dirPin2);
+AccelStepper motor3(AccelStepper::DRIVER, stepPin3, dirPin3);
+AccelStepper motor4(AccelStepper::DRIVER, stepPin4, dirPin4);
 
 // Variables for managing state
 int currentLevel = 0; // 0 = Sane AI (Chaotic motor), 3 = Crazy AI (Sane motor)
 long targetPosition1 = 0;
 long targetPosition2 = 0;
+long targetPosition3 = 0;
+long targetPosition4 = 0;
+
+// Alternating logic variables for Hands 1 and 2
+int activeHand = 1; // 1 = Writing (Motor 1), 2 = Tapping (Motor 2)
+unsigned long handSwitchTime = 0;
+const unsigned long HAND_DURATION = 7000; // Each hand acts for 3 seconds before switching
 
 void setup() {
   Serial.begin(9600); // Initialize Serial communication with the backend
   
-  // Setup Motor 1
-  pinMode(ms1Pin1, OUTPUT);
-  pinMode(ms2Pin1, OUTPUT);
+  // Enable pins setup
   pinMode(enablePin1, OUTPUT);
-  
-  digitalWrite(ms1Pin1, HIGH);
-  digitalWrite(ms2Pin1, HIGH);
-  digitalWrite(enablePin1, LOW); // LOW to enable
-
-  // Setup Motor 2
-  pinMode(ms1Pin2, OUTPUT);
-  pinMode(ms2Pin2, OUTPUT);
   pinMode(enablePin2, OUTPUT);
+  pinMode(enablePin3, OUTPUT);
+  pinMode(enablePin4, OUTPUT);
   
-  digitalWrite(ms1Pin2, HIGH);
-  digitalWrite(ms2Pin2, HIGH);
-  digitalWrite(enablePin2, LOW); // LOW to enable
+  // LOW enables the drivers on RAMPS boards
+  digitalWrite(enablePin1, LOW); 
+  digitalWrite(enablePin2, LOW); 
+  digitalWrite(enablePin3, LOW); 
+  digitalWrite(enablePin4, LOW); 
 
   // Configure initial speed and acceleration
-  motor1.setMaxSpeed(2000);
-  motor1.setAcceleration(2000);
-  
-  motor2.setMaxSpeed(2000);
-  motor2.setAcceleration(2000);
+  configureMotors(2000, 2000);
+}
+
+void configureMotors(float maxSpeed, float acceleration) {
+  motor1.setMaxSpeed(maxSpeed);
+  motor1.setAcceleration(acceleration);
+  motor2.setMaxSpeed(maxSpeed);
+  motor2.setAcceleration(acceleration);
+  motor3.setMaxSpeed(maxSpeed);
+  motor3.setAcceleration(acceleration);
+  motor4.setMaxSpeed(maxSpeed);
+  motor4.setAcceleration(acceleration);
+}
+
+void setConstantSpeed(float speed) {
+  motor1.setMaxSpeed(speed);
+  motor1.setSpeed(speed);
+  motor2.setMaxSpeed(speed);
+  motor2.setSpeed(speed);
+  motor3.setMaxSpeed(speed);
+  motor3.setSpeed(speed);
+  motor4.setMaxSpeed(speed);
+  motor4.setSpeed(speed);
+}
+
+void runConstantSpeed() {
+  motor1.runSpeed();
+  motor2.runSpeed();
+  motor3.runSpeed();
+  motor4.runSpeed();
+}
+
+void runWithAcceleration() {
+  motor1.run();
+  motor2.run();
+  motor3.run();
+  motor4.run();
+}
+
+long getRandomChaoticTarget() {
+  if (random(0, 100) > 50) {
+    return random(-1500, 1500); // Medium-large wild sweep
+  } else {
+    return random(-300, 300);   // Sharp violent twitch
+  }
 }
 
 void loop() {
@@ -106,77 +155,67 @@ void loop() {
     }
   }
 
+  // Handle alternating timer ONLY during Level 3
+  if (currentLevel == 3) {
+    if (millis() - handSwitchTime > HAND_DURATION) {
+      handSwitchTime = millis();
+      activeHand = (activeHand == 1) ? 2 : 1;
+    }
+  }
+
   // Motor behavior based on the current AI level
   if (currentLevel == 0) {
     // Level 0: AI is "good" -> Motor is highly chaotic (extremely fast, erratic, quick back-and-forth)
-    motor1.setMaxSpeed(6000);
-    motor1.setAcceleration(12000);
-    motor2.setMaxSpeed(6000);
-    motor2.setAcceleration(12000);
+    configureMotors(6000, 12000);
     
-    if (motor1.distanceToGo() == 0) {
-      if (random(0, 100) > 50) { targetPosition1 = random(-1500, 1500); } 
-      else { targetPosition1 = random(-300, 300); }
-      motor1.moveTo(targetPosition1);
-    }
+    // All Hands move synchronously chaotic
+    if (motor1.distanceToGo() == 0) { targetPosition1 = getRandomChaoticTarget(); motor1.moveTo(targetPosition1); }
+    if (motor2.distanceToGo() == 0) { targetPosition2 = getRandomChaoticTarget(); motor2.moveTo(targetPosition2); }
+    if (motor3.distanceToGo() == 0) { targetPosition3 = getRandomChaoticTarget(); motor3.moveTo(targetPosition3); }
+    if (motor4.distanceToGo() == 0) { targetPosition4 = getRandomChaoticTarget(); motor4.moveTo(targetPosition4); }
     
-    if (motor2.distanceToGo() == 0) {
-      if (random(0, 100) > 50) { targetPosition2 = random(-1500, 1500); } 
-      else { targetPosition2 = random(-300, 300); }
-      motor2.moveTo(targetPosition2);
-    }
-    
-    motor1.run();
-    motor2.run();
+    runWithAcceleration();
   } 
   else if (currentLevel == 1) {
     // Level 1: AI is starting to break -> Motor becomes slightly more regular but still fast
-    motor1.setMaxSpeed(2000);
-    motor1.setAcceleration(3000);
-    motor2.setMaxSpeed(2000);
-    motor2.setAcceleration(3000);
+    configureMotors(2000, 3000);
     
-    if (motor1.distanceToGo() == 0) {
-      targetPosition1 = random(-2000, 2000);
-      motor1.moveTo(targetPosition1);
-    }
+    // All Hands move synchronously
+    if (motor1.distanceToGo() == 0) { targetPosition1 = random(-2000, 2000); motor1.moveTo(targetPosition1); }
+    if (motor2.distanceToGo() == 0) { targetPosition2 = random(-2000, 2000); motor2.moveTo(targetPosition2); }
+    if (motor3.distanceToGo() == 0) { targetPosition3 = random(-2000, 2000); motor3.moveTo(targetPosition3); }
+    if (motor4.distanceToGo() == 0) { targetPosition4 = random(-2000, 2000); motor4.moveTo(targetPosition4); }
     
-    if (motor2.distanceToGo() == 0) {
-      targetPosition2 = random(-2000, 2000);
-      motor2.moveTo(targetPosition2);
-    }
-    
-    motor1.run();
-    motor2.run();
+    runWithAcceleration();
   }
   else if (currentLevel == 2) {
     // Level 2: AI is getting deranged -> Motor becomes predictable but still has some stop-and-go
-    motor1.setMaxSpeed(1000);
-    motor1.setAcceleration(1000);
-    motor2.setMaxSpeed(1000);
-    motor2.setAcceleration(1000);
+    configureMotors(1000, 1000);
     
-    if (motor1.distanceToGo() == 0) {
-      targetPosition1 = (targetPosition1 > 0) ? -3000 : 3000;
-      motor1.moveTo(targetPosition1);
-    }
+    // All Hands move synchronously
+    if (motor1.distanceToGo() == 0) { targetPosition1 = (targetPosition1 > 0) ? -3000 : 3000; motor1.moveTo(targetPosition1); }
+    if (motor2.distanceToGo() == 0) { targetPosition2 = (targetPosition2 > 0) ? -3000 : 3000; motor2.moveTo(targetPosition2); }
+    if (motor3.distanceToGo() == 0) { targetPosition3 = (targetPosition3 > 0) ? -3000 : 3000; motor3.moveTo(targetPosition3); }
+    if (motor4.distanceToGo() == 0) { targetPosition4 = (targetPosition4 > 0) ? -3000 : 3000; motor4.moveTo(targetPosition4); }
     
-    if (motor2.distanceToGo() == 0) {
-      targetPosition2 = (targetPosition2 > 0) ? -3000 : 3000;
-      motor2.moveTo(targetPosition2);
-    }
-    
-    motor1.run();
-    motor2.run();
+    runWithAcceleration();
   }
   else if (currentLevel == 3) {
-    // Level 3: AI is completely crazy -> Motor is perfectly sane (fast, continuous, steady rotation)
-    motor1.setMaxSpeed(1000);
-    motor1.setSpeed(1000);
-    motor2.setMaxSpeed(1000);
-    motor2.setSpeed(1000);
+    // Level 3: AI is completely crazy -> Motor is perfectly sane 
+    // Motors 3 and 4 spin continuously.
+    // Motors 1 and 2 take turns spinning continuously in full circles
     
-    motor1.runSpeed(); 
-    motor2.runSpeed(); 
+    setConstantSpeed(1000); // Sets speed and maxSpeed to 1000 for all motors
+
+    // Run active alternating motor, stop the other
+    if (activeHand == 1) {
+      motor1.runSpeed(); // Motor 1 spins infinitely
+    } else {
+      motor2.runSpeed(); // Motor 2 spins infinitely
+    }
+
+    // Run synchronous motors continuously
+    motor3.runSpeed(); 
+    motor4.runSpeed(); 
   }
 }
