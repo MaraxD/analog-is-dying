@@ -45,7 +45,17 @@ try:
             break
     
     if arduino_port:
-        arduino_serial = serial.Serial(arduino_port, 9600, timeout=1)
+        # On Windows, using DTR/RTS manipulation sometimes bypasses port locking issues
+        arduino_serial = serial.Serial()
+        arduino_serial.port = arduino_port
+        arduino_serial.baudrate = 9600
+        arduino_serial.timeout = 1
+        
+        # Disable hardware flow control before opening to prevent locking on some Windows drivers
+        arduino_serial.setDTR(False)
+        arduino_serial.setRTS(False)
+        
+        arduino_serial.open()
         print(f"Connected to Arduino on {arduino_port}")
     else:
         print("No Arduino found. Running without motor support.")
