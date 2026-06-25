@@ -165,57 +165,122 @@ void loop() {
 
   // Motor behavior based on the current AI level
   if (currentLevel == 0) {
-    // Level 0: AI is "good" -> Motor is highly chaotic (extremely fast, erratic, quick back-and-forth)
-    configureMotors(6000, 12000);
+    // Level 0: AI is "good" -> Motors are highly chaotic (extremely fast, erratic, quick back-and-forth)
+    motor1.setMaxSpeed(6000);
+    motor1.setAcceleration(12000);
+    motor2.setMaxSpeed(6000);
+    motor2.setAcceleration(12000);
+    motor3.setMaxSpeed(6000);
+    motor3.setAcceleration(12000);
+    motor4.setMaxSpeed(6000);
+    motor4.setAcceleration(12000);
     
-    // All Hands move synchronously chaotic
-    if (motor1.distanceToGo() == 0) { targetPosition1 = getRandomChaoticTarget(); motor1.moveTo(targetPosition1); }
-    if (motor2.distanceToGo() == 0) { targetPosition2 = getRandomChaoticTarget(); motor2.moveTo(targetPosition2); }
-    if (motor3.distanceToGo() == 0) { targetPosition3 = getRandomChaoticTarget(); motor3.moveTo(targetPosition3); }
-    if (motor4.distanceToGo() == 0) { targetPosition4 = getRandomChaoticTarget(); motor4.moveTo(targetPosition4); }
+    // Motor 1 Logic
+    if (motor1.distanceToGo() == 0) {
+      if (random(0, 100) > 50) motor1.moveTo(random(-1500, 1500));
+      else motor1.moveTo(random(-300, 300));
+    }
     
-    runWithAcceleration();
-  } 
-  else if (currentLevel == 1) {
-    // Level 1: AI is starting to break -> Motor becomes slightly more regular but still fast
-    configureMotors(2000, 3000);
+    // Motor 2 Logic
+    if (motor2.distanceToGo() == 0) {
+      if (random(0, 100) > 50) motor2.moveTo(random(-1500, 1500));
+      else motor2.moveTo(random(-300, 300));
+    }
     
-    // All Hands move synchronously
-    if (motor1.distanceToGo() == 0) { targetPosition1 = random(-2000, 2000); motor1.moveTo(targetPosition1); }
-    if (motor2.distanceToGo() == 0) { targetPosition2 = random(-2000, 2000); motor2.moveTo(targetPosition2); }
-    if (motor3.distanceToGo() == 0) { targetPosition3 = random(-2000, 2000); motor3.moveTo(targetPosition3); }
-    if (motor4.distanceToGo() == 0) { targetPosition4 = random(-2000, 2000); motor4.moveTo(targetPosition4); }
+    // Motor 3 Logic
+    if (motor3.distanceToGo() == 0) {
+      if (random(0, 100) > 50) motor3.moveTo(random(-1500, 1500));
+      else motor3.moveTo(random(-300, 300));
+    }
     
-    runWithAcceleration();
-  }
-  else if (currentLevel == 2) {
-    // Level 2: AI is getting deranged -> Motor becomes predictable but still has some stop-and-go
-    configureMotors(1000, 1000);
-    
-    // All Hands move synchronously
-    if (motor1.distanceToGo() == 0) { targetPosition1 = (targetPosition1 > 0) ? -3000 : 3000; motor1.moveTo(targetPosition1); }
-    if (motor2.distanceToGo() == 0) { targetPosition2 = (targetPosition2 > 0) ? -3000 : 3000; motor2.moveTo(targetPosition2); }
-    if (motor3.distanceToGo() == 0) { targetPosition3 = (targetPosition3 > 0) ? -3000 : 3000; motor3.moveTo(targetPosition3); }
-    if (motor4.distanceToGo() == 0) { targetPosition4 = (targetPosition4 > 0) ? -3000 : 3000; motor4.moveTo(targetPosition4); }
-    
-    runWithAcceleration();
-  }
-  else if (currentLevel == 3) {
-    // Level 3: AI is completely crazy -> Motor is perfectly sane 
-    // Motors 3 and 4 spin continuously.
-    // Motors 1 and 2 take turns spinning continuously in full circles
-    
-    setConstantSpeed(1000); // Sets speed and maxSpeed to 1000 for all motors
-
-    // Run active alternating motor, stop the other
-    if (activeHand == 1) {
-      motor1.runSpeed(); // Motor 1 spins infinitely
-    } else {
-      motor2.runSpeed(); // Motor 2 spins infinitely
+    // Motor 4 Logic
+    if (motor4.distanceToGo() == 0) {
+      if (random(0, 100) > 50) motor4.moveTo(random(-1500, 1500));
+      else motor4.moveTo(random(-300, 300));
     }
 
-    // Run synchronous motors continuously
-    motor3.runSpeed(); 
-    motor4.runSpeed(); 
+    motor1.run();
+    motor2.run();
+    motor3.run();
+    motor4.run();
+  } 
+  else if (currentLevel == 1) {
+    // Level 1: AI is "getting weird" -> Motors are slightly less chaotic
+    motor1.setMaxSpeed(2000);
+    motor1.setAcceleration(3000);
+    motor2.setMaxSpeed(2000);
+    motor2.setAcceleration(3000);
+    motor3.setMaxSpeed(2000);
+    motor3.setAcceleration(3000);
+    motor4.setMaxSpeed(2000);
+    motor4.setAcceleration(3000);
+    
+    if (motor1.distanceToGo() == 0) motor1.moveTo(random(-2000, 2000));
+    if (motor2.distanceToGo() == 0) motor2.moveTo(random(-2000, 2000));
+    if (motor3.distanceToGo() == 0) motor3.moveTo(random(-2000, 2000));
+    if (motor4.distanceToGo() == 0) motor4.moveTo(random(-2000, 2000));
+
+    motor1.run();
+    motor2.run();
+    motor3.run();
+    motor4.run();
+  }
+  else if (currentLevel == 2) {
+    // Level 2: AI is "deranged" -> Motors are predictable, moderate sweeps
+    motor1.setMaxSpeed(1000);
+    motor1.setAcceleration(2000);
+    motor2.setMaxSpeed(1000);
+    motor2.setAcceleration(2000);
+    motor3.setMaxSpeed(1000);
+    motor3.setAcceleration(2000);
+    motor4.setMaxSpeed(1000);
+    motor4.setAcceleration(2000);
+    
+    // Motor 1 Logic
+    if (motor1.distanceToGo() == 0) {
+      if (motor1.currentPosition() > 0) motor1.moveTo(-3000);
+      else motor1.moveTo(3000);
+    }
+    
+    // Motor 2 Logic
+    if (motor2.distanceToGo() == 0) {
+      if (motor2.currentPosition() > 0) motor2.moveTo(-3000);
+      else motor2.moveTo(3000);
+    }
+    
+    // Motor 3 Logic
+    if (motor3.distanceToGo() == 0) {
+      if (motor3.currentPosition() > 0) motor3.moveTo(-3000);
+      else motor3.moveTo(3000);
+    }
+    
+    // Motor 4 Logic
+    if (motor4.distanceToGo() == 0) {
+      if (motor4.currentPosition() > 0) motor4.moveTo(-3000);
+      else motor4.moveTo(3000);
+    }
+
+    motor1.run();
+    motor2.run();
+    motor3.run();
+    motor4.run();
+  }
+  else if (currentLevel == 3) {
+    // Level 3: AI is completely crazy -> Motors are perfectly sane (endless smooth rotation)
+    motor1.setMaxSpeed(1000);
+    motor2.setMaxSpeed(1000);
+    motor3.setMaxSpeed(1000);
+    motor4.setMaxSpeed(1000);
+    
+    // setSpeed runs the motor at a constant velocity without acceleration/deceleration
+    motor1.setSpeed(1000);
+    motor2.setSpeed(1000);
+    motor3.setSpeed(1000);
+    motor4.setSpeed(1000);
+
+    motor1.runSpeed();
+    motor2.runSpeed();
+    motor3.runSpeed();
+    motor4.runSpeed();
   }
 }
