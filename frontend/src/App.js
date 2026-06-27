@@ -20,6 +20,7 @@ function App() {
   const [isGlitching, setIsGlitching] = useState(false);
   const [showBadChats, setShowBadChats] = useState(false);
   const [isAudioAllowed, setIsAudioAllowed] = useState(false);
+  const [wasTimeoutReset, setWasTimeoutReset] = useState(false); // Track if we reset due to timeout
   const audioRef = useRef(null);
 
   // Idle Reset Logic (45 seconds)
@@ -39,12 +40,20 @@ function App() {
       setIsGlitching(false);
       reset(); // Reset chat history
       
-      // Stop audio
+      // Stop audio but keep permission active
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
+        // Start playing immediately since the browser already granted permission
+        if (isAudioAllowed) {
+          audioRef.current.play().catch(e => console.log(e));
+        }
       }
       
+      // Mark that this was a timeout reset so we bypass the 2-click rule
+      setWasTimeoutReset(true);
+      setHasInteracted(true); // Pretend the first click already happened
+
       // Reset motor via backend
       fetch("http://127.0.0.1:8000/reset-motor", { method: "POST" })
         .catch(e => console.log("Failed to reset motor:", e));
@@ -182,7 +191,15 @@ function App() {
   const showConversation = !showArticle && (isNewChat || messages.length > 0);
 
   const handleStart = () => {
-    // If it's the very first click, just unlock audio and show the text
+    // If we just had a timeout reset, we already have audio permission
+    // so we can start the experience immediately on the very first click
+    if (wasTimeoutReset) {
+      setHasStarted(true);
+      setWasTimeoutReset(false); // Reset the flag for the next user
+      return;
+    }
+
+    // If it's the very first click (cold boot), just unlock audio and show the text
     if (!hasInteracted) {
       setHasInteracted(true);
       if (audioRef.current && audioRef.current.paused && (audioRef.current.currentSrc || audioRef.current.src)) {
