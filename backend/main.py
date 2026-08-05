@@ -1,5 +1,6 @@
 import os
-
+import json
+from datetime import datetime
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 import serial
@@ -64,7 +65,10 @@ except Exception as e:
 
 @app.post("/reset-motor")
 async def reset_motor():
-    """Reset the motor state back to level 0 when the frontend reloads."""
+    """Reset the motor state back to level 0 when the frontend times out or reloads.
+    Does NOT clear the conversation log - that only happens when the user explicitly
+    creates a new chat.
+    """
     if arduino_serial and arduino_serial.is_open:
         try:
             arduino_serial.write(b'0')
@@ -72,6 +76,41 @@ async def reset_motor():
         except Exception as e:
             return {"status": "error", "message": f"Error writing to serial: {e}"}
     return {"status": "error", "message": "Arduino not connected"}
+
+@app.post("/clear-log")
+async def clear_log():
+    """Explicitly clear the conversation log file. Called only when the user
+    clicks 'New Chat' in the sidebar to start a completely fresh conversation.
+    """
+    if os.path.exists("conversation_log.json"):
+        try:
+            os.remove("conversation_log.json")
+            return {"status": "success", "message": "Conversation log cleared."}
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to clear log: {e}"}
+    return {"status": "success", "message": "No log file to clear."}
+
+def log_conversation(user_msg, ai_msg, level):
+    """Appends the interaction to a JSON log file for debugging."""
+    log_file = "conversation_log.json"
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "level": level,
+        "user": user_msg,
+        "ai": ai_msg
+    }
+    
+    logs = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, "r") as f:
+                logs = json.load(f)
+        except:
+            pass
+            
+    logs.append(entry)
+    with open(log_file, "w") as f:
+        json.dump(logs, f, indent=2)
 
 class ChatRequest(BaseModel):
     message: str
@@ -118,19 +157,40 @@ async def send_prompt(request: ChatRequest):
 
     def stream():
         try:
+            # Map the craziness level to the model's temperature
+            # Level 0: 0.3 (Very focused/predictable)
+            # Level 1: 0.8 (Standard/Slightly creative)
+            # Level 2: 1.2 (Erratic but coherent)
+            # Level 3: 1.8 (Highly chaotic, maximum hallucination)
+            temperatures = [0.3, 0.8, 1.2, 1.8]
+            current_temp = temperatures[request.level] if 0 <= request.level < len(temperatures) else 1.8
+
+            # We use a high max_output_tokens for ALL levels to ensure the API 
+            # never artificially cuts off sentences mid-word.
+            # We rely entirely on the system prompts to control the length.
+            current_tokens = 1000
+
             # get the response in chunks rather than one at once
             # Using the standard SDK way to start a chat session with history
             chat = client.chats.create(
                 model="gemini-2.5-flash",
                 config=types.GenerateContentConfig(
-                    system_instruction=request.system_prompt
+                    system_instruction=request.system_prompt,
+                    temperature=current_temp,
+                    max_output_tokens=current_tokens # Dynamically scales up at the end
                 ),
                 history=formatted_contents[:-1] # Everything except the current message
             )
             
+            full_ai_response = ""
             for chunk in chat.send_message_stream(formatted_contents[-1]["parts"][0]["text"]):
                 if chunk.text:
+                    full_ai_response += chunk.text
                     yield chunk.text
+            
+            # Log the completed interaction to the file
+            log_conversation(request.message, full_ai_response, request.level)
+                    
         except Exception as e:
             print(f"Error during generation: {e}")
             yield f"Error: {str(e)}"

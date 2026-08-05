@@ -176,7 +176,14 @@ function App() {
   const handleNewChat = () => {
     setActiveArticle(null);
     setIsNewChat(false); // Make sure it goes back to the home state
+    setShowBadChats(false); // Reset article titles to the good ones
+    setIsGlitching(false); // Stop any glitching
     reset();
+
+    // Explicitly tell the backend to delete the conversation log
+    // ONLY when the user clicks "New Chat"
+    fetch("http://127.0.0.1:8000/clear-log", { method: "POST" })
+      .catch(e => console.log("Failed to clear log:", e));
   };
 
   const handleSend = (text) => {

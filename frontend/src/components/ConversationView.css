@@ -75,3 +75,21 @@
   width: 100%;
   padding: 20px;
 }
+
+.code-block {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  margin: 12px 0;
+  border: 1px solid #303132;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.code-block code {
+  color: #a9b7c6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+}

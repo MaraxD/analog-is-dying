@@ -19,7 +19,9 @@ export default function GeminiChatView({ article }) {
   // Since you moved images into frontend/public/media (or similar),
   // we can resolve the path directly from the public folder
   // If the image is "claude-iran.png" and it's in the public/media folder, the path is "/media/claude-iran.png"
-  const imagePath = article.image_path ? article.image_path.replace("../", "/") : null;
+  // Handle paths like "../media/xxx.png" or "/media/xxx.png"
+  const rawPath = article.image_path ? (article.image_path.startsWith("/") ? article.image_path : article.image_path.replace("../", "/")) : null;
+  const imagePath = rawPath ? (process.env.PUBLIC_URL || "") + rawPath : null;
 
   return (
     <div className="chat-view" ref={containerRef}>

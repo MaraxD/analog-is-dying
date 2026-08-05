@@ -40,19 +40,53 @@ export default function ConversationView({ messages, loading }) {
                     <p key={j}>{para}</p>
                   ))
                 ) : (
-                  // assistant messages progressively render with word animation
-                  msg.content.split("\n\n").map((para, j) => (
-                    <p key={j}>
-                      {para.split(/(\s+)/).map((word, k) => (
-                        <span 
-                          key={k} 
-                          className={loading && i === messages.length - 1 && word.trim() !== "" ? "char" : ""}
-                        >
-                          {word}
-                        </span>
-                      ))}
-                    </p>
-                  ))
+                  // assistant messages progressively render with word animation, handling code blocks
+                  msg.content.replace(/'''/g, '```').split('```').map((segment, segIdx) => {
+                    const isCodeBlock = segIdx % 2 === 1;
+                    if (isCodeBlock) {
+                      // Extract language tag if it exists (e.g., 'python\n')
+                      let codeContent = segment;
+                      const firstNewline = segment.indexOf("\n");
+                      if (firstNewline !== -1 && firstNewline < 15) {
+                        const firstLine = segment.slice(0, firstNewline).trim();
+                        if (/^[a-zA-Z0-9_-]+$/.test(firstLine)) {
+                          codeContent = segment.slice(firstNewline + 1);
+                        }
+                      }
+                      
+                      return (
+                        <pre key={segIdx} className="code-block">
+                          <code>
+                            {codeContent.split(/(\s+)/).map((word, k) => (
+                              <span 
+                                key={k} 
+                                className={loading && i === messages.length - 1 && word.trim() !== "" ? "char" : ""}
+                              >
+                                {word}
+                              </span>
+                            ))}
+                          </code>
+                        </pre>
+                      );
+                    } else {
+                      return segment.split("\n\n").map((para, j) => {
+                        // Skip empty paragraphs to avoid weird spacing
+                        if (!para.trim() && para === "") return null;
+                        return (
+                          <p key={`${segIdx}-${j}`}>
+                            {para.split(/(\s+)/).map((word, k) => (
+                              <span 
+                                key={k} 
+                                className={loading && i === messages.length - 1 && word.trim() !== "" ? "char" : ""}
+                              >
+                                {word}
+                              </span>
+                            ))}
+                          </p>
+                        );
+                      });
+                    }
+                  })
                 )}
               </div>
             </div>
