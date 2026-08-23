@@ -5,6 +5,10 @@ import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 import serial
 import serial.tools.list_ports
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 api_key = os.getenv("GOOGLE_API_KEY")
 
@@ -79,20 +83,19 @@ async def reset_motor():
 
 @app.post("/clear-log")
 async def clear_log():
-    """Explicitly clear the conversation log file. Called only when the user
-    clicks 'New Chat' in the sidebar to start a completely fresh conversation.
+    """Since logs are now stored per-session in the logs/ folder, we no longer delete them.
+    This endpoint remains to not break frontend compatibility when 'New Chat' is clicked.
     """
-    if os.path.exists("conversation_log.json"):
-        try:
-            os.remove("conversation_log.json")
-            return {"status": "success", "message": "Conversation log cleared."}
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to clear log: {e}"}
-    return {"status": "success", "message": "No log file to clear."}
+    return {"status": "success", "message": "Logs are now preserved per-session."}
 
-def log_conversation(user_msg, ai_msg, level):
-    """Appends the interaction to a JSON log file for debugging."""
-    log_file = "conversation_log.json"
+def log_conversation(session_id, user_msg, ai_msg, level):
+    """Appends the interaction to a session-specific JSON log file."""
+    logs_dir = "logs"
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+        
+    log_file = os.path.join(logs_dir, f"conversation_{session_id}.json")
+    
     entry = {
         "timestamp": datetime.now().isoformat(),
         "level": level,
@@ -117,6 +120,7 @@ class ChatRequest(BaseModel):
     history: list[dict] = []
     system_prompt: str = ""
     level: int = 0
+    session_id: str = "default"
 
 @app.post("/gemini")
 async def send_prompt(request: ChatRequest):
@@ -189,7 +193,7 @@ async def send_prompt(request: ChatRequest):
                     yield chunk.text
             
             # Log the completed interaction to the file
-            log_conversation(request.message, full_ai_response, request.level)
+            log_conversation(request.session_id, request.message, full_ai_response, request.level)
                     
         except Exception as e:
             print(f"Error during generation: {e}")

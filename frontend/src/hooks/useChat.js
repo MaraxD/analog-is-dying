@@ -15,6 +15,7 @@ export default function useChat() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [promptIndex, setPromptIndex] = useState(0);
+  const [sessionId, setSessionId] = useState(Date.now().toString());
   const abortControllerRef = useRef(null);
   const typingIntervalRef = useRef(null);
 
@@ -106,6 +107,7 @@ export default function useChat() {
           message: text,
           system_prompt: currentSystemPrompt,
           level: calculatedIndex,
+          session_id: sessionId,
           // Convert history structure from 'role/content' to what backend expects 'role/text'
           history: updatedMessages.slice(0, -1).map(msg => ({
             role: msg.role === "user" ? "user" : "ai",
@@ -143,6 +145,7 @@ export default function useChat() {
     stopGeneration();
     setMessages([]);
     setPromptIndex(0);
+    setSessionId(Date.now().toString());
   };
 
   return { messages, loading, sendMessage, reset, stopGeneration };

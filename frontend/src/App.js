@@ -5,6 +5,7 @@ import GeminiInput from './components/GeminiInput';
 import GeminiSidebar from './components/GeminiSidebar';
 import articles from "./content/articles.json";
 import ChatNudge from "./components/ChatNudge";
+import NextArticleNudge from "./components/NextArticleNudge";
 import ConversationView from "./components/ConversationView";
 import useChat from "./hooks/useChat";
 import IntroPage from "./components/IntroPage";
@@ -126,16 +127,21 @@ function App() {
     // Based on userMessageCount / 2, the final level (3) is reached at 6 messages
     const userMessageCount = messages.filter((msg) => msg.role === "user").length;
 
-    if (userMessageCount >= 6 && !showBadChats && !isGlitching) {
+    // Only trigger the glitch when the AI finishes its final message (loading becomes false)
+    if (userMessageCount >= 6 && !showBadChats && !isGlitching && !loading) {
       setIsGlitching(true);
       
       // Stop the glitch after 1.5 seconds and swap the articles permanently
       setTimeout(() => {
         setShowBadChats(true);
         setIsGlitching(false);
+        // Force redirect to the first bad article, closing the chat
+        if (articles.bad_chats && articles.bad_chats.length > 0) {
+          setActiveArticle(articles.bad_chats[0]);
+        }
       }, 1500);
     }
-  }, [messages.length, showBadChats, isGlitching]);
+  }, [messages, showBadChats, isGlitching, loading]);
 
   // Tell backend to reset motor to Level 0 when the app initially loads/refreshes
   useEffect(() => {
@@ -165,6 +171,18 @@ function App() {
     const article = currentArticles.find((a) => a.id === id);
     setActiveArticle(article);
     setIsNewChat(false);
+  };
+
+  const handleNextArticle = () => {
+    if (!activeArticle) return;
+    const currentIndex = currentArticles.findIndex((a) => a.id === activeArticle.id);
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < currentArticles.length) {
+      setActiveArticle(currentArticles[nextIndex]);
+    } else {
+      // Loop back to the first article if they reach the end
+      setActiveArticle(currentArticles[0]);
+    }
   };
 
   const handleHome = () => {
@@ -235,7 +253,7 @@ function App() {
               onNewChat={handleNewChat}
               isGlitching={isGlitching}
             />
-            <main className={`main ${showHome ? "main-home" : ""}`}>
+            <main className={`main ${showHome ? "main-home" : ""} ${isGlitching ? "main-glitch" : ""}`}>
               {crazinessLevel >= 3 && <FallingLetters />}
               <div className="topbar">
                 <span className="topbar-logo" onClick={handleHome}>Gemini</span>
@@ -252,6 +270,8 @@ function App() {
             </main>
             {/* Only show the nudge if we are viewing an article AND we are not in the final crazy state */}
             {showArticle && crazinessLevel < 3 && <ChatNudge onNewChat={handleNewChat} />}
+            {/* Show Next Article nudge in the final crazy state when viewing an article */}
+            {showArticle && crazinessLevel >= 3 && <NextArticleNudge key={activeArticle?.id} onNext={handleNextArticle} />}
         </div>
       )}
     </>
